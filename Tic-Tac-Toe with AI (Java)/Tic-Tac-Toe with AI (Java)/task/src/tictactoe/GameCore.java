@@ -51,47 +51,83 @@ public class GameCore {
         System.out.println('\n' + "---------");
     }
 
-    public void game() {
+    @SuppressWarnings("all")
+    public void game(GameCore object) {
         Scanner sc = new Scanner(System.in);
-        Player player = new Player();
-        Bot bot = new Bot();
 
-        drawingField(getField());
-        printField(getField());
+        Bot botX = new Bot('X');
+        Bot botO = new Bot('O');
+        Player playerX = new Player('X');
+        Player playerO = new Player('O');
 
-        gameState(getField(), player, bot, sc);
+        boolean exit = false;
 
-    }
+        while (!exit) {
+            System.out.print("Input command: ");
 
-    public void gameState(char[][] chars, Player player, Bot bot, Scanner sc) {
-        while (true) {
-            player.testingAndSettingSymbols(chars, sc);
-            chars[player.getActCordRow()][player.getActCordColumn()] = player.getAccessingChar();
-            setSignsCounter(getSignsCounter() + 1);
-            setField(chars);
-            printField(getField());
-            if (winingTest(chars, player.getActCordRow(), player.getActCordColumn(), player.getAccessingChar())) {
-                System.out.println("X wins");
-                break;
-            } else if (getSignsCounter() == 9) {
-                System.out.println("Draw");
-                break;
-            } else {
-                System.out.println("Making move level \"easy\"");
-                bot.cordGenerator(chars);
-                chars[bot.getActCordRow()][bot.getActCordColumn()] = bot.getAccessingChar();
-                setSignsCounter(getSignsCounter() + 1);
-                setField(chars);
-                printField(getField());
-                if (winingTest(chars, bot.getActCordRow(), bot.getActCordColumn(), bot.getAccessingChar())) {
-                    System.out.println("O wins");
+            switch (sc.nextLine()) {
+                case "start easy easy":
+
+                    setSignsCounter(0);
+                    drawingField(getField());
+                    printField(getField());
+                    while (true) {
+                        if (botX.botEasyMove(getField(), object)) {
+                            break;
+                        } else if (botO.botEasyMove(getField(), object)) {
+                            break;
+                        }
+                    }
                     break;
-                }
+                case "start user user":
+
+                    setSignsCounter(0);
+                    drawingField(getField());
+                    printField(getField());
+                    while (true) {
+                        if (playerX.playerMove(getField(), object, sc)) {
+                            break;
+                        } else if (playerO.playerMove(getField(), object, sc)) {
+                            break;
+                        }
+                    }
+                    break;
+                case "start user easy":
+
+                    setSignsCounter(0);
+                    drawingField(getField());
+                    printField(getField());
+                    while (true) {
+                        if (playerX.playerMove(getField(), object, sc)) {
+                            break;
+                        } else if (botO.botEasyMove(getField(), object)) {
+                            break;
+                        }
+                    }
+                    break;
+                case "start easy user":
+
+                    setSignsCounter(0);
+                    drawingField(getField());
+                    printField(getField());
+                    while (true) {
+                        if (botX.botEasyMove(getField(), object)) {
+                            break;
+                        } else if (playerO.playerMove(getField(), object, sc)) {
+                            break;
+                        }
+                    }
+                    break;
+                case "exit":
+                    exit = true;
+                    break;
+                default:
+                    System.out.println("Bad parameters!");
+                    break;
             }
         }
-
-
     }
+
 
     public static boolean winingTest(char[][] chars, int actCordRow, int actCordColumn, char testingChar) {
         boolean win = false;

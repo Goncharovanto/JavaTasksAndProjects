@@ -6,6 +6,11 @@ public class Player {
 
     int actCordRow;
     int actCordColumn;
+    char accessingChar;
+
+    public Player(char accessingChar) {
+        this.accessingChar = accessingChar;
+    }
 
     public int getActCordColumn() {
         return actCordColumn;
@@ -24,13 +29,34 @@ public class Player {
     }
 
     public char getAccessingChar() {
-        return 'X';
+        return accessingChar;
+    }
+
+    public boolean playerMove(char[][] gameField, GameCore object, Scanner sc) {
+        boolean gameEnded = false;
+
+        testingAndSettingSymbols(gameField, sc);
+
+        gameField[getActCordRow()][getActCordColumn()] = getAccessingChar();
+        object.setSignsCounter(object.getSignsCounter() + 1);
+        object.setField(gameField);
+        GameCore.printField(object.getField());
+
+        if (GameCore.winingTest(gameField, getActCordRow(), getActCordColumn(), getAccessingChar())) {
+            gameEnded = true;
+            System.out.printf("%c wins" + '\n', getAccessingChar());
+
+        } else if (object.getSignsCounter() == 9) {
+            gameEnded = true;
+            System.out.println("Draw" + '\n');
+        }
+        return gameEnded;
     }
 
     public void testingAndSettingSymbols(char[][] gameField, Scanner scanner) {
         boolean validInput = false;
-        int cordColumn = 0;
-        int cordRow = 0;
+        int cordColumn;
+        int cordRow;
         String regexForDigits = "\\d\\s\\d";
         String regexForRange = "[1-3]\\s[1-3]";
 
