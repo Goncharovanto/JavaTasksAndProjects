@@ -4,6 +4,40 @@ import java.util.Scanner;
 
 public class GameCore {
     char[][] Field = new char[3][3];
+    String[] input;
+    GameState state;
+
+    String parameter;
+
+    int index;
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public String getParameter() {
+        return parameter;
+    }
+
+    public void setParameter(String parameter) {
+        this.parameter = parameter;
+    }
+
+    public void setInput(String[] input) {
+        this.input = input;
+    }
+
+    public String[] getInput() {
+        return input;
+    }
+
+    public void setState(GameState state) {
+        this.state = state;
+    }
 
     int signsCounter;
 
@@ -51,162 +85,95 @@ public class GameCore {
         System.out.println('\n' + "---------");
     }
 
+    @SuppressWarnings("unused")
+    public enum GameState {
+        USER,
+        EASY_BOT,
+        MEDIUM_BOT,
+        HARD_BOT,
+        EXIT,
+        WAITING_FOR_INPUT,
+        GAMING_PROCESS
+    }
+
+    @SuppressWarnings("all")
+    public void gettingInput(Scanner sc) {
+        System.out.print("Input command: ");
+        String input = sc.nextLine();
+        String inputReg = "\\w*\\s\\w*\\s\\w*";
+
+        if (input.matches("exit")) {
+            setState(GameState.EXIT);
+        } else if (input.matches(inputReg)) {
+            String[] array = input.split(" ");
+            setInput(array);
+            setParameter(array[1]);
+            setIndex(1);
+            setState(GameState.GAMING_PROCESS);
+            setSignsCounter(0);
+            drawingField(getField());
+            printField(getField());
+        } else {
+            System.out.println("Bad parameters!");
+        }
+    }
+
+    public void switchingMove(String str, String[] array, int index, GameCore object, Scanner sc, Player player) {
+
+
+        switch (index) {
+            case 1 -> player.setAccessingChar('X');
+            case 2 -> player.setAccessingChar('O');
+        }
+
+        switch (str) {
+            case "user":
+                if (player.playerMove(getField(), object, sc)) {
+                    setState(GameState.WAITING_FOR_INPUT);
+                }
+                break;
+            case "easy":
+                if (player.botEasyMove(getField(), object)) {
+                    setState(GameState.WAITING_FOR_INPUT);
+                }
+                break;
+            case "medium":
+                if (player.botMediumMove(getField(), object)) {
+                    setState(GameState.WAITING_FOR_INPUT);
+                }
+        }
+        if (getIndex() == 1) {
+            setParameter(array[2]);
+            setIndex(2);
+        } else {
+            setParameter(array[1]);
+            setIndex(1);
+        }
+    }
+
+
     @SuppressWarnings("all")
     public void game(GameCore object) {
         Scanner sc = new Scanner(System.in);
-
-        Bot botX = new Bot('X');
-        Bot botO = new Bot('O');
-        Player playerX = new Player('X');
-        Player playerO = new Player('O');
+        Player player = new Player();
 
         boolean exit = false;
+        setState(GameState.WAITING_FOR_INPUT);
 
         while (!exit) {
-            System.out.print("Input command: ");
 
-            switch (sc.nextLine()) {
-                case "start easy easy":
-
-                    setSignsCounter(0);
-                    drawingField(getField());
-                    printField(getField());
-                    while (true) {
-                        if (botX.botEasyMove(getField(), object)) {
-                            break;
-                        } else if (botO.botEasyMove(getField(), object)) {
-                            break;
-                        }
-                    }
+            switch (state) {
+                case WAITING_FOR_INPUT:
+                    gettingInput(sc);
                     break;
-                case "start user user":
-
-                    setSignsCounter(0);
-                    drawingField(getField());
-                    printField(getField());
-                    while (true) {
-                        if (playerX.playerMove(getField(), object, sc)) {
-                            break;
-                        } else if (playerO.playerMove(getField(), object, sc)) {
-                            break;
-                        }
-                    }
+                case GAMING_PROCESS:
+                    switchingMove(getParameter(), getInput(), getIndex(), object, sc, player);
                     break;
-                case "start user easy":
-
-                    setSignsCounter(0);
-                    drawingField(getField());
-                    printField(getField());
-                    while (true) {
-                        if (playerX.playerMove(getField(), object, sc)) {
-                            break;
-                        } else if (botO.botEasyMove(getField(), object)) {
-                            break;
-                        }
-                    }
-                    break;
-                case "start easy user":
-
-                    setSignsCounter(0);
-                    drawingField(getField());
-                    printField(getField());
-                    while (true) {
-                        if (botX.botEasyMove(getField(), object)) {
-                            break;
-                        } else if (playerO.playerMove(getField(), object, sc)) {
-                            break;
-                        }
-                    }
-                    break;
-                case "exit":
+                case EXIT:
                     exit = true;
                     break;
-                default:
-                    System.out.println("Bad parameters!");
-                    break;
+
             }
         }
-    }
-
-
-    public static boolean winingTest(char[][] chars, int actCordRow, int actCordColumn, char testingChar) {
-        boolean win = false;
-
-        if (actCordRow == actCordColumn && actCordRow != 1) {
-            if (horizontalTest(chars, actCordRow, testingChar) || verticalTest(chars, actCordColumn, testingChar) ||
-                    leftToRightDiagonalTest(chars, testingChar)) {
-                win = true;
-            }
-        } else if (actCordColumn != actCordRow && actCordColumn != 1 && actCordRow != 1) {
-            if (horizontalTest(chars, actCordRow, testingChar) || verticalTest(chars, actCordColumn, testingChar) ||
-                    rightToLeftDiagonalTest(chars, testingChar)) {
-                win = true;
-            }
-        } else if (actCordRow == 1 && actCordColumn == 1) {
-            if (horizontalTest(chars, actCordRow, testingChar) || verticalTest(chars, actCordColumn, testingChar) ||
-                    rightToLeftDiagonalTest(chars, testingChar) || leftToRightDiagonalTest(chars, testingChar)) {
-                win = true;
-            }
-        } else {
-            if (horizontalTest(chars, actCordRow, testingChar) || verticalTest(chars, actCordColumn, testingChar)) {
-                win = true;
-            }
-        }
-        return win;
-    }
-
-    public static boolean horizontalTest(char[][] chars, int actCordRow, char testingChar) {
-        boolean win = false;
-        for (int i = 0; i < chars.length; i++) {
-            if (chars[actCordRow][i] != testingChar) {
-                win = false;
-                break;
-            } else {
-                win = true;
-            }
-        }
-        return win;
-    }
-
-    @SuppressWarnings("ForLoopReplaceableByForEach")
-    public static boolean verticalTest(char[][] chars, int actCordColum, char testingChar) {
-        boolean win = false;
-        for (int i = 0; i < chars.length; i++) {
-            if (chars[i][actCordColum] != testingChar) {
-                win = false;
-                break;
-            } else {
-                win = true;
-            }
-        }
-        return win;
-    }
-
-    public static boolean leftToRightDiagonalTest(char[][] chars, char testingChar) {
-        boolean win = false;
-        for (int i = 0; i < chars.length; i++) {
-            if (chars[i][i] != testingChar) {
-                win = false;
-                break;
-            } else {
-                win = true;
-            }
-        }
-        return win;
-    }
-
-    @SuppressWarnings("ForLoopReplaceableByForEach")
-    public static boolean rightToLeftDiagonalTest(char[][] chars, char testingChar) {
-        boolean win = false;
-        int index = chars.length - 1;
-        for (int i = 0; i < chars.length; i++) {
-            if (chars[i][index--] != testingChar) {
-                win = false;
-                break;
-            } else {
-                win = true;
-            }
-        }
-        return win;
     }
 }

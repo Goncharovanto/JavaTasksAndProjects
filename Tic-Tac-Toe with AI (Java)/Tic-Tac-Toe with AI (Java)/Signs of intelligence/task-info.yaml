@@ -260,56 +260,6 @@ files:
         }
     }
   learner_created: false
-- name: src/tictactoe/Bot.java
-  visible: true
-  text: |
-    package tictactoe;
-
-    import java.util.Random;
-
-    public class Bot {
-
-        int actCordColumn;
-        int actCordRow;
-
-        public int getActCordRow() {
-            return actCordRow;
-        }
-
-        public int getActCordColumn() {
-            return actCordColumn;
-        }
-
-        public void setActCordRow(int actCordRow) {
-            this.actCordRow = actCordRow;
-        }
-
-        public void setActCordColumn(int actCordColumn) {
-            this.actCordColumn = actCordColumn;
-        }
-
-        public char getAccessingChar() {
-            return 'O';
-        }
-
-        public void cordGenerator(char[][] gameField) {
-            Random rnd = new Random();
-            boolean validCord = false;
-
-            while (!validCord) {
-                int cordRow = rnd.nextInt(3);
-                int cordColumn = rnd.nextInt(3);
-
-                if (gameField[cordRow][cordColumn] != 'X'&& gameField[cordRow][cordColumn] != 'O') {
-                    setActCordRow(cordRow);
-                    setActCordColumn(cordColumn);
-                    validCord = true;
-                }
-            }
-        }
-
-    }
-  learner_created: false
 - name: test/TicTacToeTest.java
   visible: false
   text: |
@@ -630,5 +580,8 @@ files:
     }
   learner_created: false
 feedback_link: https://hyperskill.org/learn/step/7437#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations!
+  time: "Tue, 29 Aug 2023 16:06:56 UTC"
 record: -1
